@@ -7,6 +7,7 @@
 
 :Authors:
     Florian Boudin (florian.boudin@univ-nantes.fr)
+    Coraline Marie
 
 :Date:
     22 july 2013 (creation)
@@ -34,13 +35,14 @@ def main(argv):
     train_set = content_handler(argv[0])
     test_set = content_handler(argv[1])
 
-    model = train(train_set.sentences)
+    model_bigram = train_bigram(train_set.sentences)
+    model_trigram = train_trigram(train_set.sentences)
 
     handle = codecs.open(argv[2], 'w', 'utf-8')
     handle.write('<?xml version="1.0" encoding="UTF-8" ?>\n')
     handle.write('<dataset>\n')
     for i in range(len(test_set.raw_sentences)):
-        segmented_sentence = word_segmentation(model, test_set.raw_sentences[i])
+        segmented_sentence = word_segmentation(model_bigram, model_trigram, test_set.raw_sentences[i])
         handle.write('\t<sentence sid="'+str(i)+'">\n')
         handle.write('\t\t<raw>'+segmented_sentence+'</raw>\n')
         handle.write('\t</sentence>\n')
@@ -117,7 +119,7 @@ class content_handler(xml.sax.ContentHandler):
 ################################################################################
 # Training function
 ################################################################################
-def train(sentences):
+def train_bigram(sentences):   # def train(sentences):
 
     observation_prob = {}
     state_trans_prob = {}
@@ -126,8 +128,8 @@ def train(sentences):
     for sentence in sentences:
 
         for i in range(len(sentence)):
-            sentence[i] = 'c'.join(sentence[i])		# rajoute un c entre chaque idéogramme qui ne sont pas coupé
-        annotated_sequence = 'b'.join(sentence)		# rajoute un b entre chaque idéogramme qui sont coupé
+            sentence[i] = 'c'.join(sentence[i])		# rajoute un c entre chaque caractère
+        annotated_sequence = 'b'.join(sentence)		# rajoute un b à la fin de chaque phrase
 
         previous_state = ''
         current_state = ''
@@ -135,11 +137,12 @@ def train(sentences):
         for i in range(0, len(annotated_sequence)-1, 2):
             observation = annotated_sequence[i:i+3]
             bigram = observation[0]+observation[2]
+
             current_state = observation[1]
 
             if not observation_prob.has_key(bigram):
                 observation_prob[bigram] = {'c': 0.0, 'b': 0.0}
-            observation_prob[bigram][current_state] += 1.0
+	    observation_prob[bigram][current_state] += 1.0
 
             if previous_state != '':
                 add_one(state_trans_prob, (previous_state, current_state))
@@ -147,8 +150,7 @@ def train(sentences):
 
     # Normalize observation probabilities
     for bigram in observation_prob:
-        norm_factor = observation_prob[bigram]['c'] \
-                      + observation_prob[bigram]['b']
+        norm_factor = observation_prob[bigram]['c'] + observation_prob[bigram]['b']
         observation_prob[bigram]['c'] /= norm_factor
         observation_prob[bigram]['b'] /= norm_factor
 
@@ -163,15 +165,77 @@ def train(sentences):
 ################################################################################
 
 
+
+################################################################################
+# Training function trigram
+################################################################################
+def train_trigram(sentences):
+
+    observation_prob = {}
+    state_trans_prob = {}
+
+    # Iterates through the sentences
+    for sentence in sentences:
+
+        for i in range(len(sentence)):
+            sentence[i] = 'c'.join(sentence[i])		# rajoute un c entre chaque caractère
+        annotated_sequence = 'b'.join(sentence)		# rajoute un b à la fin de chaque phrase
+
+        previous_state = ''
+        current_state = ''
+
+        for i in range(0, len(annotated_sequence)-3, 2):	#attention au -3 qui ne permet pas de prendre en compte le dernier bigram
+            observation = annotated_sequence[i:i+5]
+            trigram = observation[0]+observation[2]+observation[4]
+
+            current_state = observation[1]+observation[3]
+
+	    if not observation_prob.has_key(trigram):
+                observation_prob[trigram] = {'cb': 0.0, 'bc': 0.0, 'cc': 0.0, 'bb': 0.0}
+
+            observation_prob[trigram][current_state] += 1.0
+
+            if previous_state != '':
+                add_one(state_trans_prob, (previous_state, current_state))
+            previous_state = current_state
+
+    # Normalize observation probabilities
+    for trigram in observation_prob:
+        norm_factor = observation_prob[trigram]['cb'] + observation_prob[trigram]['bc'] + observation_prob[trigram]['cc'] + observation_prob[trigram]['bb']
+        observation_prob[trigram]['cb'] /= norm_factor
+        observation_prob[trigram]['bc'] /= norm_factor
+        observation_prob[trigram]['bb'] /= norm_factor
+        observation_prob[trigram]['cc'] /= norm_factor
+
+    # Normalize transition probabilities
+    norm_factor = 0.0
+    for t in state_trans_prob:
+        norm_factor += state_trans_prob[t]
+    for t in state_trans_prob:
+        state_trans_prob[t] /= norm_factor
+    
+    return [observation_prob, state_trans_prob]
+################################################################################
+
+
+
 ################################################################################
 # Function for word segmentation
 ################################################################################
-def word_segmentation(model, sentence):
+def word_segmentation(model_bigram, model_trigram, sentence):
 
-    observation_prob = model[0]
-    state_trans_prob = model[1]
+    observation_prob = model_bigram[0]
+    state_trans_prob = model_bigram[1]
 
-    unseen_prob = 0.1
+    """
+    observation_prob_bigram = model_bigram[0]
+    state_trans_prob_bigram = model_bigram[1]
+
+    observation_prob_trigram = model_trigram[0]
+    state_trans_prob_trigram = model_trigram[1]
+    """
+
+    unseen_prob = 0.1		#gérer des proba différentes sur les b et les c
 
     observations = []
     lattice = []
@@ -186,6 +250,28 @@ def word_segmentation(model, sentence):
             lattice[-1]['b'] = max(unseen_prob, lattice[-1]['b'])
         else:
             lattice.append({'c': unseen_prob, 'b': unseen_prob})
+    """
+
+    for i in range(len(sentence)-1):
+        trigram = sentence[i:i+3]
+	bigram = sentence[i:i+2]
+        observations.append(trigram)
+
+        if observation_prob_trigram.has_key(trigram):
+            lattice.append(observation_prob_trigram[trigram])
+            lattice[-1]['cb'] = max(unseen_prob, lattice[-1]['cb'])
+            lattice[-1]['bc'] = max(unseen_prob, lattice[-1]['bc'])
+	    lattice[-1]['bb'] = max(unseen_prob, lattice[-1]['bb'])
+            lattice[-1]['cc'] = max(unseen_prob, lattice[-1]['cc'])
+	elif observation_prob_bigram.has_key(bigram):
+            lattice.append(observation_prob_bigram[bigram])
+            lattice[-1]['c'] = max(unseen_prob, lattice[-1]['c'])
+            lattice[-1]['b'] = max(unseen_prob, lattice[-1]['b'])
+        else:
+            lattice.append({'c': unseen_prob, 'b': unseen_prob})
+
+    """
+
 
     # Use viterbi to decode the lattice
 
@@ -229,9 +315,8 @@ def word_segmentation(model, sentence):
             segmented_sentence.append(sentence[i]+" ")
     segmented_sentence.append(sentence[-1])
     return ''.join(segmented_sentence)
-
-
 ################################################################################
+
 
 ################################################################################
 # To launch the script 

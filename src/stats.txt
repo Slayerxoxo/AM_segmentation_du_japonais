@@ -1,0 +1,7 @@
+# Scores obtenus avec le système HMM de FB
+Avg Precision 0.904005681695
+Avg Recall 0.881382517888
+Avg f-measure 0.892550767507
+
+
+
