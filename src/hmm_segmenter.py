@@ -187,7 +187,7 @@ def train_trigram(sentences):
         #annotated_sequence_debut = 'UNK' + annotated_sequence
         #print annotated_sequence_debut
 
-
+        pprevious_state = ''
         previous_state = ''
         current_state = ''
 
@@ -201,8 +201,11 @@ def train_trigram(sentences):
                 observation_prob[trigram] = {'c': 0.0, 'b': 0.0}
             observation_prob[trigram][current_state] += 1.0
 
-            if previous_state != '':
+            if pprevious_state != '':
+                add_one(state_trans_prob, (pprevious_state, previous_state, current_state))
+            elif previous_state != '':
                 add_one(state_trans_prob, (previous_state, current_state))
+            pprevious_state = previous_state
             previous_state = current_state
 
     # Normalize observation probabilities
