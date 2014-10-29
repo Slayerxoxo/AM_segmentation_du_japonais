@@ -59,6 +59,19 @@ def add_one(dic, value):
     if not dic.has_key(value):
         dic[value] = 0.0
     dic[value] += 1.0
+
+
+def get_alphabet(caracter):
+    if 0x3040 <= ord(caracter) <= 0x309F:
+        return 'hiragana'
+    elif 0x30A0 <= ord(caracter) <= 0x30FF:
+        return 'katakana'
+    elif 0xFF01 <= ord(caracter) <= 0xFFEF:
+        return 'romanji'
+    elif 0x300 <= ord(caracter) <= 0x303F:
+        return 'other'
+    else:
+        return 'kanji'
 ################################################################################
 
 
@@ -117,12 +130,19 @@ class content_handler(xml.sax.ContentHandler):
 
 
 ################################################################################
-# Training function
+# Training function bigram (base)
 ################################################################################
 def train_bigram(sentences):   # def train(sentences):
 
     observation_prob = {}
     state_trans_prob = {}
+    alphabet_trans_prob = {}
+
+    alphabet_type = ["hiragana", "katakana", "romanji", "kanji", "other"]
+    for element in alphabet_type:
+        alphabet_trans_prob[element] = {}
+        for element2 in alphabet_type:
+            alphabet_trans_prob[element][element2] = {'c': 0, 'b': 0}
 
     # Iterates through the sentences
     for sentence in sentences:
@@ -139,6 +159,8 @@ def train_bigram(sentences):   # def train(sentences):
             bigram = observation[0] + observation[2]
 
             current_state = observation[1]
+
+            alphabet_trans_prob[get_alphabet(observation[0])][get_alphabet(observation[2])][current_state] += 1
 
             if not observation_prob.has_key(bigram):
                 observation_prob[bigram] = {'c': 0.0, 'b': 0.0}
@@ -160,23 +182,27 @@ def train_bigram(sentences):   # def train(sentences):
         norm_factor += state_trans_prob[t]
     for t in state_trans_prob:
         state_trans_prob[t] /= norm_factor
-
-    #print(observation_prob)
-    #print(state_trans_prob)
     
-    return [observation_prob, state_trans_prob]
+    return [observation_prob, state_trans_prob, alphabet_trans_prob]
 ################################################################################
 
 
 
 ################################################################################
-# Training function trigram
+# Training function trigram + gestion de l'alphabet
 ################################################################################
 def train_trigram(sentences):
 
     observation_prob = {}
     state_trans_prob = {}
+    alphabet_trans_prob = {}
 
+    alphabet_type = ["hiragana", "katakana", "romanji", "kanji", "other"]
+    for element in alphabet_type:
+        alphabet_trans_prob[element] = {}
+        for element2 in alphabet_type:
+            alphabet_trans_prob[element][element2] = {'c': 0, 'b': 0}
+            
     # Iterates through the sentences
     for sentence in sentences:
 
@@ -187,25 +213,26 @@ def train_trigram(sentences):
         #annotated_sequence_debut = 'UNK' + annotated_sequence
         #print annotated_sequence_debut
 
-        pprevious_state = ''
-        previous_state = ''
         current_state = ''
+        previous_state = ''
+        previous_second_state = ''
 
         for i in range(0, len(annotated_sequence) - 3, 2):
             observation = annotated_sequence[i:i + 5]
             trigram = observation[0] + observation[2] + observation[4]
-            print trigram
             current_state = observation[1] #3
+
+            alphabet_trans_prob[get_alphabet(observation[0])][get_alphabet(observation[2])][current_state] += 1
 
             if not observation_prob.has_key(trigram):
                 observation_prob[trigram] = {'c': 0.0, 'b': 0.0}
             observation_prob[trigram][current_state] += 1.0
 
-            if pprevious_state != '':
-                add_one(state_trans_prob, (pprevious_state, previous_state, current_state))
+            if previous_second_state != '':
+                add_one(state_trans_prob, (previous_second_state, previous_state, current_state))
             elif previous_state != '':
                 add_one(state_trans_prob, (previous_state, current_state))
-            pprevious_state = previous_state
+            previous_second_state = previous_state
             previous_state = current_state
 
     # Normalize observation probabilities
@@ -221,10 +248,18 @@ def train_trigram(sentences):
     for t in state_trans_prob:
         state_trans_prob[t] /= norm_factor
 
-    #print(observation_prob)
-    #print(state_trans_prob)
+    norm_factor = 0.0
+    for i in alphabet_trans_prob.keys():
+        for j in alphabet_trans_prob[i].keys():
+            for k in alphabet_trans_prob[i][j].keys():
+                norm_factor += alphabet_trans_prob[i][j][k]
+    for i in alphabet_trans_prob.keys():
+        for j in alphabet_trans_prob[i].keys():
+            for k in alphabet_trans_prob[i][j].keys():
+                alphabet_trans_prob[i][j][k] /= norm_factor
+
     
-    return [observation_prob, state_trans_prob]
+    return [observation_prob, state_trans_prob, alphabet_trans_prob]
 ################################################################################
 
 
@@ -233,41 +268,20 @@ def train_trigram(sentences):
 # Function for word segmentation
 ################################################################################
 def word_segmentation(model_bigram, model_trigram, sentence):
-    """
-    observation_prob = model_bigram[0]
-    state_trans_prob = model_bigram[1]
 
-    """
     observation_prob_bigram = model_bigram[0]
-    state_trans_prob_bigram = model_bigram[1]
-
     observation_prob_trigram = model_trigram[0]
-    state_trans_prob_trigram = model_trigram[1]
+    observation_prob = observation_prob_trigram
+    observation_prob_alphabet = model_bigram[2]
+    state_trans_prob_bigram = model_bigram[1]
+    state_trans_prob = model_trigram[1]
 
-    
 
     unseen_prob_b = 0.02		# gérer des proba différentes sur les b et les c
     unseen_prob_c = 0.01
 
     observations = []
-    lattice = []
-
-    """
-    for i in range(len(sentence)-1):
-        bigram = sentence[i:i+2]
-        observations.append(bigram)
-    
-    
-        if observation_prob.has_key(bigram):
-            lattice.append(observation_prob[bigram])
-            lattice[-1]['c'] = max(unseen_prob_c, lattice[-1]['c'])
-            lattice[-1]['b'] = max(unseen_prob_b, lattice[-1]['b'])
-        else:
-            lattice.append({'c': unseen_prob_c, 'b': unseen_prob_b})
-    """
-    #for i in range(len(observations)):
-     #   print(observations[i])
-        
+    lattice = [] 
     
 
     for i in range(len(sentence) - 1):
@@ -283,7 +297,9 @@ def word_segmentation(model_bigram, model_trigram, sentence):
             lattice[-1]['c'] = max(unseen_prob_c, lattice[-1]['c'])
             lattice[-1]['b'] = max(unseen_prob_b, lattice[-1]['b'])
         else:
-            lattice.append({'c': unseen_prob_c, 'b': unseen_prob_b})
+            lattice.append(observation_prob_alphabet[get_alphabet(bigram[0])][get_alphabet(bigram[1])])
+            lattice[-1]['c'] = max(unseen_prob_c, lattice[-1]['c'])
+            lattice[-1]['b'] = max(unseen_prob_b, lattice[-1]['b'])
 
 
     # Use viterbi to decode the lattice
@@ -310,9 +326,9 @@ def word_segmentation(model_bigram, model_trigram, sentence):
         for prob, stack in best_V:
 
             # Compute probability for continuation
-            prob_c = prob * lattice[i]['c'] * state_trans_prob_trigram[(stack[-1], 'c')]
+            prob_c = prob * lattice[i]['c'] * state_trans_prob[(stack[-1], 'c')]
             bisect.insort(new_V, (prob_c, stack + ['c']))
-            prob_b = prob * lattice[i]['b'] * state_trans_prob_trigram[(stack[-1], 'b')]
+            prob_b = prob * lattice[i]['b'] * state_trans_prob[(stack[-1], 'b')]
             bisect.insort(new_V, (prob_b, stack + ['b']))
 
         V = list(new_V)

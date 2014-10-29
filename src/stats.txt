@@ -17,3 +17,9 @@ Avg f-measure 0.924525750173
 Avg Precision 0.878153290557
 Avg Recall 0.977583661324
 Avg f-measure 0.925204736713
+
+# Scores obtenus avec le système HMM de FB + l'ajout de coeff (0.02b 0.01c) + gestion des trigrams + ajout d'un état + gestion des alphabets
+Avg Precision 0.952022851917
+Avg Recall 0.925284355656
+Avg f-measure 0.938463185516
+
