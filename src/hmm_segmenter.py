@@ -137,12 +137,13 @@ def train_bigram(sentences):   # def train(sentences):
     observation_prob = {}
     state_trans_prob = {}
     alphabet_trans_prob = {}
-
     alphabet_type = ["hiragana", "katakana", "romanji", "kanji", "other"]
+
+    #Initialisation alphabet probability
     for element in alphabet_type:
         alphabet_trans_prob[element] = {}
         for element2 in alphabet_type:
-            alphabet_trans_prob[element][element2] = {'c': 0, 'b': 0}
+            alphabet_trans_prob[element][element2] = {'c': 0.0, 'b': 0.0}
 
     # Iterates through the sentences
     for sentence in sentences:
@@ -182,6 +183,7 @@ def train_bigram(sentences):   # def train(sentences):
         norm_factor += state_trans_prob[t]
     for t in state_trans_prob:
         state_trans_prob[t] /= norm_factor
+
     
     return [observation_prob, state_trans_prob, alphabet_trans_prob]
 ################################################################################
@@ -201,18 +203,11 @@ def train_trigram(sentences):
     for element in alphabet_type:
         alphabet_trans_prob[element] = {}
         for element2 in alphabet_type:
-            alphabet_trans_prob[element][element2] = {'c': 0, 'b': 0}
+            alphabet_trans_prob[element][element2] = {'c': 0.0, 'b': 0.0}
             
     # Iterates through the sentences
     for sentence in sentences:
-
-        #for i in range(len(sentence)):
-        #    sentence[i] = 'c'.join(sentence[i])
-        #print sentence[i]
-        annotated_sequence = 'b'.join(sentence)		
-        #annotated_sequence_debut = 'UNK' + annotated_sequence
-        #print annotated_sequence_debut
-
+        annotated_sequence = 'b'.join(sentence)
         current_state = ''
         previous_state = ''
         previous_second_state = ''
@@ -220,7 +215,7 @@ def train_trigram(sentences):
         for i in range(0, len(annotated_sequence) - 3, 2):
             observation = annotated_sequence[i:i + 5]
             trigram = observation[0] + observation[2] + observation[4]
-            current_state = observation[1] #3
+            current_state = observation[1]
 
             alphabet_trans_prob[get_alphabet(observation[0])][get_alphabet(observation[2])][current_state] += 1
 
@@ -248,16 +243,6 @@ def train_trigram(sentences):
     for t in state_trans_prob:
         state_trans_prob[t] /= norm_factor
 
-    norm_factor = 0.0
-    for i in alphabet_trans_prob.keys():
-        for j in alphabet_trans_prob[i].keys():
-            for k in alphabet_trans_prob[i][j].keys():
-                norm_factor += alphabet_trans_prob[i][j][k]
-    for i in alphabet_trans_prob.keys():
-        for j in alphabet_trans_prob[i].keys():
-            for k in alphabet_trans_prob[i][j].keys():
-                alphabet_trans_prob[i][j][k] /= norm_factor
-
     
     return [observation_prob, state_trans_prob, alphabet_trans_prob]
 ################################################################################
@@ -271,13 +256,11 @@ def word_segmentation(model_bigram, model_trigram, sentence):
 
     observation_prob_bigram = model_bigram[0]
     observation_prob_trigram = model_trigram[0]
-    observation_prob = observation_prob_trigram
     observation_prob_alphabet = model_bigram[2]
-    state_trans_prob_bigram = model_bigram[1]
     state_trans_prob = model_trigram[1]
 
 
-    unseen_prob_b = 0.02		# gérer des proba différentes sur les b et les c
+    unseen_prob_b = 0.02
     unseen_prob_c = 0.01
 
     observations = []
