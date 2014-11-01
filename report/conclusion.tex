@@ -4,6 +4,21 @@
 %%%%%                Author : Coraline Marie                   %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+Ce projet a permis de délimiter les perforances et les limites de la méthode de C. P. Papageorgiou, et de concevoir quelques améliorations :
+\begin{center}
+	\begin{tabular}{|l c c c|}
+	  	\hline
+	  	\textbf{Méthode} & \textbf{Précision} & \textbf{Rappel} & \textbf{F-mesure}\\
+	  	\hline
+	  	Baseline & 90.0\% & 88.0\% & 89.2\% \\
+		Probabilités unseen & 87.5\% & 96.5\% & 91.8\% \\
+		Trigrammes + backoff & 87.8\% & 97.7\% & 92.5\% \\
+		Gestion des alphabets & 95.7\% & 93.4\% & 94.6\% \\
+	  	\hline
+	\end{tabular}
+\end{center}
+\vspace{0.3cm}
+
 Bien que les scores obtenus grâce à ses diverses méthodes soient satisfaisants (94.6\% de f-mesure sur le corpus
 de test), il reste encore des erreurs. Ceci peut être repproché au corpus d'entrainement dont la taille reste limitée, mais pas seulement.\\
 

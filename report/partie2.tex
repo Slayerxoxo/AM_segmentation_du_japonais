@@ -1,0 +1,37 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                        PARTIE 2                          %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                Author : Coraline Marie                   %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Implémentation des trigrammes}
+
+La méthode de C. P. Papageorgiou s'appuie sur une analyse bigramme par bigramme. Une autre amélioration possible serait donc de voir si la méthode ne donnerait pas de meilleurs résultats en remplaçant les bigrammes par les trigrammes. Malheureusement en remplaçant le traitement des bigrammes par les trigrammes, les scores de segmentation sont beaucoup moins bons avec seulement 85.3\% de f-mesure :
+\begin{center}
+	\begin{tabular}{|l c|}
+	  	\hline
+	  	Avg Precision & 0.749078005914 \\
+		Avg Recall & 0.991451976152 \\
+		Avg f-measure & 0.85338934337 \\
+	  	\hline
+	\end{tabular}
+\end{center}
+
+
+\subsection{Trigrammes avec backoff}
+
+L'implémentation des trigrammes donne de moins bon résultats que ceux des bigrammes seuls, car il y a plus de trigrammes non reconnus. Pour résoudre ce problème, il suffit de fusionner la méthode des bigrammes avec celle des trigrammes. Ainsi, lorsqu'un trigramme n'est pas reconnu, la méthode teste un caractère de moins, pour voir si un bigramme serait reconnu. Cette nouvelle méthode trigrammes avec backoff donne de bien meilleurs résultats sur le corpus de test avec 92.5\% de f-mesure :
+\begin{center}
+	\begin{tabular}{|l c|}
+	  	\hline
+	  	Avg Precision & 0.878153290557 \\
+		Avg Recall & 0.977583661324 \\
+		Avg f-measure & 0.925204736713 \\
+	  	\hline
+	\end{tabular}
+\end{center}
+
+
+\subsection{N-grammes}
+
+Après avoir obtenus de très bon résultats avec la méthode précédente, il parait logique d'essayer avec 4-grammes et plus. Cependant cette nouvelle méthode est très décevante, car elle donne les pires résultats rencontrés justqu'à présent : environ 50\% de f-mesure pour 4-grammes avec backoff. Cette méthode a donc été abandonnée car le taux de f-mesure est trop bas.
