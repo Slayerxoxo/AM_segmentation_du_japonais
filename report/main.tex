@@ -3,6 +3,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%                Author : Coraline Marie                   %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                Segmentation du japonais                  %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \documentclass[a4paper]{report}
@@ -43,15 +45,46 @@
 	%%%%% Introduction %%%%%
 	\chapter*{Introduction}
 	\addcontentsline{toc}{chapter}{\protect\numberline{}Introduction}
-	%\input{./introduction.tex}
+	\input{./introduction.tex}
 
 
-	%%%%% Parties à ajouter %%%%%
+	%%%%% Partie 1 %%%%%
+	\chapter*{Première approche}
+	\addcontentsline{toc}{chapter}{\protect\numberline{}Première approche}
+	%\input{./partie1.tex}
+
+	%la méthode de base
+	%la modification de coef
+	
+	
+	%%%%% Partie 2 %%%%%
+	\chapter*{Implémentation des trigrammes}
+	\addcontentsline{toc}{chapter}{\protect\numberline{}Implémentation des trigrammes}
+	%\input{./partie2.tex}
+
+	%les trigrammes
+	%les trigrammes backoff
+	%les quadrigrammes
+
+	%%%%% Partie 3 %%%%%
+	\chapter*{Reconaissance des alphabets}
+	\addcontentsline{toc}{chapter}{\protect\numberline{}Reconaissance des alphabets}
+	%\input{./partie3.tex}
+
+	%les statistiques sur les alphabet en bigramme
+	%les trigrammes ?
+
+	Comme il l'a été dit précédemment, le Japonais est composé de plusieurs alphabet :
 
 
 	%%%%% Conclusion %%%%%
 	\chapter*{Conclusion}
 	\addcontentsline{toc}{chapter}{\protect\numberline{}Conclusion}
-	%\input{./conclusion.tex}
+	\input{./conclusion.tex}
+	
+	%%%%% Annexes %%%%%
+	%Liens
+	%Récupération du projet
+	%Compilation
 
 \end{document}
