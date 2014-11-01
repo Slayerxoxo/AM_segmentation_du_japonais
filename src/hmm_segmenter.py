@@ -32,6 +32,12 @@ def main(argv):
         print "Usage : hmm_segmenter.py training_file test_file output_file"
         sys.exit()
 
+
+
+    # katakana_lst =
+    # punctuation_lst =
+    # other_lst =
+
     train_set = content_handler(argv[0])
     test_set = content_handler(argv[1])
 
@@ -74,6 +80,7 @@ def get_alphabet(caracter):
         return 'other'
     else:
         return 'kanji'
+
 ################################################################################
 
 
@@ -260,6 +267,9 @@ def train_total(sentences):
     state_trans_prob = {}
     alphabet_prob = {}
 
+    var_b = 0
+    var_c = 0
+
 
     # init alphabet_prob values
     alphabet_lst = ["hiragana", "katakana", "romanji", "kanji", "other"]
@@ -269,6 +279,7 @@ def train_total(sentences):
             alphabet_prob[element][element2] = {'c': 0.0, 'b': 0.0}
 
     # Iterates through the sentences
+
     for sentence in sentences:
         for i in range(len(sentence)):
             sentence[i] = 'c'.join(sentence[i])
@@ -277,6 +288,7 @@ def train_total(sentences):
         current_state = ''
         previous_state = ''
         previous_second_state = ''
+
 
         for i in range(0, len(annotated_sequence)-3, 2):
             observation = annotated_sequence[i:i+5]
@@ -291,6 +303,11 @@ def train_total(sentences):
             if not observation_prob.has_key(bigram):
                 observation_prob[bigram] = {'c': 0.0, 'b': 0.0}
             observation_prob[bigram][current_state] += 1.0
+            if current_state == 'b':
+                var_b += 1
+            else:
+                var_c += 1
+
 
             if previous_second_state != '':
                 add_one(state_trans_prob, (previous_second_state, previous_state, current_state))
@@ -321,7 +338,7 @@ def train_total(sentences):
     #     for j in alphabet_prob[i].keys():
     #         for k in alphabet_prob[i][j].keys():
     #             alphabet_prob[i][j][k] /= norm_factor
-
+    #print ("b = " + str(var_b) + " c = " + str(var_c))
     return [observation_prob, state_trans_prob, alphabet_prob]
 ################################################################################
 

@@ -7,7 +7,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\documentclass[a4paper]{report}
+\documentclass[a4paper]{article}
 
 
 %%%%% Packages %%%%%
@@ -40,23 +40,22 @@
 
 	%%%%% Sommaire %%%%%
 	\tableofcontents
+	\newpage
 	
 
 	%%%%% Introduction %%%%%
-	\chapter*{Introduction}
-	\addcontentsline{toc}{chapter}{\protect\numberline{}Introduction}
+	\section*{Introduction}
+	\addcontentsline{toc}{section}{\protect\numberline{}Introduction}
 	\input{./introduction.tex}
 
 
 	%%%%% Partie 1 %%%%%
-	\chapter*{Première approche}
-	\addcontentsline{toc}{chapter}{\protect\numberline{}Première approche}
+	\section{Première approche}
 	\input{./partie1.tex}
 	
 	
 	%%%%% Partie 2 %%%%%
-	\chapter*{Implémentation des trigrammes}
-	\addcontentsline{toc}{chapter}{\protect\numberline{}Implémentation des trigrammes}
+	\section{Implémentation des trigrammes}
 	%\input{./partie2.tex}
 
 	%les trigrammes
@@ -64,8 +63,7 @@
 	%les quadrigrammes
 
 	%%%%% Partie 3 %%%%%
-	\chapter*{Reconaissance des alphabets}
-	\addcontentsline{toc}{chapter}{\protect\numberline{}Reconaissance des alphabets}
+	\section{Reconaissance des alphabets}
 	%\input{./partie3.tex}
 
 	%les statistiques sur les alphabet en bigramme
@@ -75,9 +73,10 @@
 
 
 	%%%%% Conclusion %%%%%
-	\chapter*{Conclusion}
-	\addcontentsline{toc}{chapter}{\protect\numberline{}Conclusion}
+	\section*{Conclusion}
+	\addcontentsline{toc}{section}{\protect\numberline{}Conclusion}
 	\input{./conclusion.tex}
+	\newpage
 	
 	%%%%% Annexes %%%%%
 	%Liens
