@@ -265,18 +265,27 @@ def train_total(sentences):
 
     observation_prob = {}
     state_trans_prob = {}
-    alphabet_prob = {}
+    alphabet_prob_bigram = {}
+    # alphabet_prob_trigram = {}
 
     var_b = 0
     var_c = 0
 
 
-    # init alphabet_prob values
+    # init alphabet probability
     alphabet_lst = ["hiragana", "katakana", "romaji", "kanji", "other"]
     for element in alphabet_lst:
-        alphabet_prob[element] = {}
+        alphabet_prob_bigram[element] = {}
         for element2 in alphabet_lst:
-            alphabet_prob[element][element2] = {'c': 0.0, 'b': 0.0}
+            alphabet_prob_bigram[element][element2] = {'c': 0.0, 'b': 0.0}
+
+    # for element in alphabet_lst:
+    #     for element2 in alphabet_lst:
+    #         alphabet_prob_trigram[(element,element2)] = {}
+    #         for element3 in alphabet_lst:
+    #             alphabet_prob_trigram[(element, element2)][element3] = {'c': 0.0, 'b': 0.0}
+
+
 
     # Iterates through the sentences
 
@@ -295,7 +304,8 @@ def train_total(sentences):
             bigram = observation[0] + observation[2]
             trigram = observation[0] + observation[2] + observation[4]
             current_state = observation[1]
-            alphabet_prob[get_alphabet(observation[0])][get_alphabet(observation[2])][current_state] += 1
+            alphabet_prob_bigram[get_alphabet(observation[0])][get_alphabet(observation[2])][current_state] += 1
+            # alphabet_prob_trigram[(get_alphabet(observation[0]),get_alphabet(observation[2]))][get_alphabet(observation[4])][current_state] += 1
 
             if not observation_prob.has_key(trigram):
                 observation_prob[trigram] = {'c': 0.0, 'b': 0.0}
@@ -330,16 +340,16 @@ def train_total(sentences):
         state_trans_prob[t] /= norm_factor
 
     # norm_factor = 0.0
-    # for i in alphabet_prob.keys():
-    #     for j in alphabet_prob[i].keys():
-    #         for k in alphabet_prob[i][j].keys():
-    #             norm_factor += alphabet_prob[i][j][k]
-    # for i in alphabet_prob.keys():
-    #     for j in alphabet_prob[i].keys():
-    #         for k in alphabet_prob[i][j].keys():
-    #             alphabet_prob[i][j][k] /= norm_factor
+    # for i in alphabet_prob_bigram.keys():
+    #     for j in alphabet_prob_bigram[i].keys():
+    #         for k in alphabet_prob_bigram[i][j].keys():
+    #             norm_factor += alphabet_prob_bigram[i][j][k]
+    # for i in alphabet_prob_bigram.keys():
+    #     for j in alphabet_prob_bigram[i].keys():
+    #         for k in alphabet_prob_bigram[i][j].keys():
+    #             alphabet_prob_bigram[i][j][k] /= norm_factor
     #print ("b = " + str(var_b) + " c = " + str(var_c))
-    return [observation_prob, state_trans_prob, alphabet_prob]
+    return [observation_prob, state_trans_prob, alphabet_prob_bigram]
 ################################################################################
 
 
