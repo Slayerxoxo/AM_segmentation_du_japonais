@@ -75,7 +75,7 @@ def get_alphabet(caracter):
     elif 0x30A0 <= ord(caracter) <= 0x30FF:
         return 'katakana'
     elif 0xFF01 <= ord(caracter) <= 0xFFEF:
-        return 'romanji'
+        return 'romaji'
     elif 0x300 <= ord(caracter) <= 0x303F:
         return 'other'
     else:
@@ -272,7 +272,7 @@ def train_total(sentences):
 
 
     # init alphabet_prob values
-    alphabet_lst = ["hiragana", "katakana", "romanji", "kanji", "other"]
+    alphabet_lst = ["hiragana", "katakana", "romaji", "kanji", "other"]
     for element in alphabet_lst:
         alphabet_prob[element] = {}
         for element2 in alphabet_lst:

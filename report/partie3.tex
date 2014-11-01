@@ -1,0 +1,23 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                        PARTIE 3                          %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                Author : Coraline Marie                   %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Annalyse des alphabets par bigrammes}
+
+Comme il l'a été dit précédemment, le Japonais est composé de plusieurs alphabets : les Hiraganas, les Katakanas, les Kanjis, et les Romajis. De plus, il est possible de rencontrer divers éléments de ponctuations ainsi que des caractères spéciaux. Aussi, il est logique de penser que lorsqu'il y a plusieurs alphabets dans une même phrase, ces derniers peuvent donner des indices sur la segmentation. \\
+
+Dans cette nouvelle méthode, la première étape analyse d'abord les bigrammes et les trigrammes, puis elle calcule des probabilités sur les alphabets. Ainsi, lors de la seconde étape, si un bigramme n'a pas été rencontré dans le corpus d'entrainement, elle applique les probabilités calculées avec les alphabets. Cette nouvelle fonctionnalité donne de très bon résultats, puisqu'il y a un taux d'environ 94.6\% de f-measure :
+\begin{center}
+	\begin{tabular}{|l c|}
+	  	\hline
+	  	Avg Precision & 0.957560380247 \\
+		Avg Recall & 0.934352408883 \\
+		Avg f-measure & 0.945814049226 \\
+	  	\hline
+	\end{tabular}
+\end{center}
+	
+	
+	%les trigrammes ?
