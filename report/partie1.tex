@@ -6,9 +6,9 @@
 
 \subsection{La segmentation par les Modèles de Markov cachés}
 
-L'article \textit{Japanese word segmentation by hidden markov model} de Constantine P. Papageorgiou\cite{Papageorgiou:001} présente une méthode de segmentation en mots du Japonais très efficace. Cette méthode plutôt simple, utilise à la fois un corpus d'entrainement déjà segmenté et un second corpus qu'il faudra segmenter. 
+L'article \textit{Japanese word segmentation by hidden markov model} de Constantine P. Papageorgiou\cite{Papageorgiou:001} présente une méthode de segmentation en mots du Japonais très efficace. Cette méthode plutôt simple, utilise à la fois un corpus d'entraînement déjà segmenté et un second corpus qu'il faudra segmenter. 
 
-La première étape de cette méthode consiste à analyser bigramme par bigramme tout le corpus d'entrainement, afin de mémoriser le comportement de chaque duo de caractères : \textit{coupure} ou \textit{non-coupure}. Cette analyse permet ensuite d'obtenir des probabilités de comportement sur l'ensemble des bigrammes rencontrés.
+La première étape de cette méthode consiste à analyser bigramme par bigramme tout le corpus d'entraînement, afin de mémoriser le comportement de chaque duo de caractères : \textit{coupure} ou \textit{non-coupure}. Cette analyse permet ensuite d'obtenir des probabilités de comportement sur l'ensemble des bigrammes rencontrés.
 
 La seconde étape consiste à analyser bigramme par bigramme tout le corpus à segmenter, puis par l'intermédiaire d'un \textit{HMM} (Hiden Markov Model : Modèle de Marov caché), elle définit s'il faut couper ou non le bigramme.\\
 
@@ -26,11 +26,11 @@ Les résultats de l'implémentation de cette méthode sur le corpus de test donn
 
 \subsection{Gestion des probabilités}
 
-La première limite qui est observable sur cette méthode est la gestion pauvre des probabilités non observés. En effet, dans le cas où un bigramme du corpus à segmenter n'a pas été observé dans le corpus d'entrainement, la méthode attribue la même probabilité à la coupure et à la non coupure du bigramme. \\
+La première limite qui est observable sur cette méthode est la gestion pauvre des probabilités non observées. En effet, dans le cas où un bigramme du corpus à segmenter n'a pas été observé dans le corpus d'entraînement, la méthode attribue la même probabilité à la coupure et à la non coupure du bigramme. \\
 
-Or, si on regarde plus attentivement les probabilités de coupure des bigrammes dans le corpus d'entrainement, on remarque qu'il est plus probable de couper que de ne pas couper un bigramme. \\
+Or, si on regarde plus attentivement les probabilités de coupure des bigrammes dans le corpus d'entraînement, on remarque qu'il est plus probable de couper que de ne pas couper un bigramme. De plus, si le bigramme n'a pas été observé, c'est également possible que ce soit car il n'a aucun sens dans la langue japonaise. \\
 
-Ainsi, la première amélioration faite à cette méthode est l'attribution de deux probabilités différentes à la coupure et à la non-coupure pour les bigrammes non rencontrés. Ces probabilités sont 0.02 pour la coupure et 0.01 pour la non-coupure. Elles ont été définies pendant la phase d'entrainement, par décompte et normalisation du nombre total de bigrammes rencontrés dans le corpus d'entrainement. \\
+Ainsi, la première amélioration faite à cette méthode est l'attribution de deux probabilités différentes à la coupure et à la non-coupure pour les bigrammes non rencontrés. Ces probabilités sont 0.02 pour la coupure et 0.01 pour la non-coupure. Elles ont été définies pour permettre d'avantager la coupure par rapport à la non-coupure pour les raisons décritent précédemment. \\
 
 Les résultats de cette première amélioration donnent environ 92\% de f-mesure :
 \begin{center}

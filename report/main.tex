@@ -60,7 +60,7 @@
 	
 
 	%%%%% Partie 3 %%%%%
-	\section{Reconaissance des alphabets}
+	\section{Reconnaîssance des alphabets}
 	\input{./partie3.tex}
 
 	
@@ -72,9 +72,38 @@
 	
 	%%%%% Annexes %%%%%
 	%Liens
+	\section*{Annexes}
+	\addcontentsline{toc}{section}{\protect\numberline{}Annexes}
+	
+	Le projet est actuellement disponible sur un dépôt GitHub à l'adresse suivante : \url{https://github.com/Slayerxoxo/AM_segmentation_du_japonais}\\
+	
+	\textbf{Compilation : }\\
+  	Commande pour construire les ensembles de train/test à partir du KNBC :
+  	\begin{tabular}{|l|}
+  		\hline
+		python knbc\_to\_xml.py knbc-train.xml knbc-test.xml knbc-reference.xml \\
+		\hline
+	\end{tabular}
+	\vspace{0.5cm}
+	
+	\noindent{Commande pour segmenter le fichier de test avec mon implémentation de hmm :} \\
+	\begin{tabular}{|l|}
+  		\hline
+  		python hmm\_segmenter.py knbc-train.xml knbc-test.xml knbc-hmm.xml  \\
+		\hline
+	\end{tabular}
+	\vspace{0.5cm}
+	
+	\noindent{Commande pour évaluer la performance d'un système :} \\
+	\begin{tabular}{|l|}
+  		\hline
+  		python evaluation.py knbc-hmm.xml knbc-reference.xml  \\
+  		\hline
+	\end{tabular}
+	
+	\vspace{2cm}
+	
 	\bibliographystyle{plain}
 	\bibliography{biblio}
-	%Récupération du projet
-	%Compilation
-
+	
 \end{document}
